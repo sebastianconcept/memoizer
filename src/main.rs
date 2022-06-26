@@ -2,6 +2,7 @@
 // #![feature(path)]
 
 use serde_json::{Result, Value};
+use std::f32::consts::E;
 use std::io::{BufRead, BufReader};
 use std::os::unix::net::{UnixListener, UnixStream};
 use std::path::Path;
@@ -14,10 +15,13 @@ fn value_from(data: &str) -> Result<Value> {
 }
 
 fn on_line_received(line: String) {
-    // println!("data: {:?}", line);
-    // let value = value_from(&line).unwrap();
-    let value = value_from(&line).unwrap_or(value_from("{}").unwrap());
-    println!("{}", value);
+    let value = value_from(&line);
+    match value {
+        Ok(value) => {
+            println!("Got value: {:?}", value);
+        }
+        Err(e) => println!("Invalid message: {:?}", e),
+    }
 }
 
 fn on_socket_accept(mut stream: UnixStream) {
