@@ -5,18 +5,12 @@
 use mut_static::MutStatic;
 use rand::seq::SliceRandom;
 use std::fs::OpenOptions;
-use std::io::{BufRead, BufReader};
-use std::io::{Error, Write};
-use std::os::raw::c_uint;
-use std::os::unix::net::{UnixListener, UnixStream};
-use std::thread;
+use std::io::{ Write};
 use std::{
     collections::HashMap,
-    ffi::CString,
     fs::{self, File},
     path::Path,
 };
-use uuid::Uuid;
 
 #[derive(Clone)]
 pub struct Storage {
