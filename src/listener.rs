@@ -24,11 +24,12 @@ pub fn respond(message: &str, mut stream: &UnixStream) {
 pub fn route(message: MemoizerMessage, mut stream: &UnixStream) {
     match message.s.as_str() {
         "get" => {
-            println!("Received a get");
+            let key = message.p["k"].to_string();
+            println!("Received a get for k {}", key);
             respond("ok", stream)
         }
         "set" => {
-            println!("Received a set: {}", message.p);
+            // println!("Received a set: {}", message.p);
             respond("ok", stream)
         }
         "reset" => {
@@ -45,10 +46,7 @@ pub fn route(message: MemoizerMessage, mut stream: &UnixStream) {
 fn on_line_received(line: String, stream: &UnixStream) {
     let m: Result<MemoizerMessage> = serde_json::from_str(&line);
     match m {
-        Ok(m) => {
-            println!("Received a MemoizerMessage");
-            route(m, stream)
-        }
+        Ok(m) => route(m, stream),
         Err(err) => {
             println!("Received and unsupported value");
             let error_message = format!("{:?}", err);
