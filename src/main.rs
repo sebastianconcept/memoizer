@@ -24,21 +24,27 @@ fn respond(message: &str, mut stream: &UnixStream) {
 }
 
 fn route(message: MemoizerMessage, mut stream: &UnixStream) {
-    if "get".to_string() == message.s {
-        println!("Received a get");
-       return respond("ok", stream)
+    match message.s.as_str() {
+        "get" => {
+            println!("Received a get");
+            respond("ok", stream)
+        }
+        "set" => {
+            println!("Received a set: {}", message.p);
+            respond("ok", stream)
+        }
+        "reset" => {
+            println!("Received a reset");
+            respond("ok", stream)
+        }
+        _ => {
+            println!("Received and unsupported value");
+            respond("nok", stream)
+        }
     }
-    if "set".to_string() == message.s  {
-        println!("Received a set");
-        return respond("ok", stream)
-    }
-
-    println!("Received and unsupported value");
-    respond("nok", stream)
 }
 
 fn on_line_received(line: String, stream: &UnixStream) {
-    println!("On line received: {:?}", line);
     let m: Result<MemoizerMessage> = serde_json::from_str(&line);
     match m {
         Ok(m) => {
