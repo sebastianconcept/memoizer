@@ -1,14 +1,15 @@
 use serde::{Deserialize, Serialize};
 use serde_json::{self, Error, Result, Value};
+
 use std::io::{BufRead, BufReader, Write};
 use std::os::unix::net::{UnixListener, UnixStream};
 use std::path::Path;
-use std::{fs, thread};
+use std::{fmt, fs, thread};
 
 #[derive(Serialize, Deserialize)]
 struct MemoizerMessage {
     s: String, // selector
-    p: Value, // payload
+    p: Value,  // payload
 }
 
 pub static SOCKET_PATH: &'static str = "/tmp/memoizer-socket";
@@ -22,48 +23,35 @@ fn respond(message: &str, mut stream: &UnixStream) {
     stream.write_all(paylaod.as_bytes());
 }
 
+fn route(message: MemoizerMessage, mut stream: &UnixStream) {
+    if "get".to_string() == message.s {
+        println!("Received a get");
+       return respond("ok", stream)
+    }
+    if "set".to_string() == message.s  {
+        println!("Received a set");
+        return respond("ok", stream)
+    }
+
+    println!("Received and unsupported value");
+    respond("nok", stream)
+}
+
 fn on_line_received(line: String, stream: &UnixStream) {
     println!("On line received: {:?}", line);
     let m: Result<MemoizerMessage> = serde_json::from_str(&line);
     match m {
         Ok(m) => {
             println!("Received a MemoizerMessage");
-            respond("ok", stream)
+            route(m, stream)
         }
         Err(err) => {
             println!("Received and unsupported value");
-            respond("nok", stream)
-        } 
-        // match value["m"] {
-          //     "get" => {
-          //         println!("Received a get");
-          //         respond("ok", stream)
-          //     },
-          //     "set" => {
-          //         println!("Received a get");
-          //         respond("ok", stream)
-          //     },
-          //     _ => {
-          //         println!("Received and unsupported value");
-          //         respond("nok", stream)
-          //     }
-          // }
+            let error_message = format!("{:?}", err);
+            respond(&error_message, stream)
+        }
     }
 }
-
-fn value_from(data: &str) -> Result<Value> {
-    serde_json::from_str(data)
-}
-
-// fn on_line_received(line: String, stream: &UnixStream) {
-//     let value = value_from(&line);
-//     match value {
-//         Ok(value) => {
-//             on_value_received(value, &stream);
-//         }
-//         Err(e) => println!("Invalid message: {:?}", e),
-//     }
-// }
 
 fn on_socket_accept(stream: &UnixStream) {
     println!("Accepting incoming connection: {:?}", stream.local_addr());
