@@ -38,6 +38,7 @@ pub fn route(message: MemoizerMessage, mut stream: &UnixStream) {
             let key = message.p["k"].to_string();
             let value = message.p["v"].to_string();
             // println!("Received a set for: \nk: {} \nv: {}", key, value);
+            // println!("k: {}", key);
             set(key, value);
             respond("ok", stream)
         }
