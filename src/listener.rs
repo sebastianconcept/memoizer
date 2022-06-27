@@ -4,6 +4,8 @@ use serde_json::{self, Result, Value};
 use std::io::{BufRead, BufReader, Write};
 use std::os::unix::net::UnixStream;
 
+use crate::storage::{get, reset, set, size};
+
 #[derive(Serialize, Deserialize)]
 pub struct MemoizerMessage {
     s: String, // selector
@@ -25,18 +27,27 @@ pub fn route(message: MemoizerMessage, mut stream: &UnixStream) {
     match message.s.as_str() {
         "get" => {
             let key = message.p["k"].to_string();
-            println!("Received a get for k {}", key);
-            respond("ok", stream)
+            // println!("Received a get for k {}", key);
+            let value = get(key);
+            match value {
+                None => respond("null", stream),
+                Some(v) => respond(&v, stream),
+            }
         }
         "set" => {
             let key = message.p["k"].to_string();
             let value = message.p["v"].to_string();
-            println!("Received a set for: \nk: {} \nv: {}", key, value);
+            // println!("Received a set for: \nk: {} \nv: {}", key, value);
+            set(key, value);
             respond("ok", stream)
         }
         "reset" => {
-            println!("Received a reset");
+            reset();
             respond("ok", stream)
+        }
+        "size" => {
+            let size = size();
+            respond(&format!("{}", size), stream)
         }
         _ => {
             println!("Received and unsupported value");
