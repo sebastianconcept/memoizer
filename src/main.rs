@@ -1,8 +1,13 @@
+#[macro_use]
+extern crate lazy_static;
+extern crate mut_static;
+
 use std::{fs, os::unix::net::UnixListener, path::Path, thread};
 
 use crate::listener::*;
 
 mod listener;
+pub mod storage;
 
 fn main() {
     let socket = Path::new(SOCKET_PATH);
