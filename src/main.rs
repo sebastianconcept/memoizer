@@ -2,28 +2,23 @@
 extern crate lazy_static;
 extern crate mut_static;
 
-use std::{fs, os::unix::net::UnixListener, path::Path, thread};
-
 use crate::listener::*;
+use std::net::TcpListener;
+use std::thread;
 
 mod listener;
 pub mod storage;
 
 fn main() {
-    let socket = Path::new(SOCKET_PATH);
-
-    // Delete old socket if necessary
-    if socket.exists() {
-        fs::remove_file(&socket).ok();
-    }
+    let socket_address = "127.0.0.1:9001";
 
     // Bind to socket
-    let listener = match UnixListener::bind(&socket) {
+    let listener = match TcpListener::bind(&socket_address) {
         Err(_) => panic!("Failed to bind socket"),
         Ok(listener) => listener,
     };
 
-    println!("Server started, waiting for clients");
+    println!("Server started, waiting for clients on {}", socket_address);
 
     listener.incoming().for_each(|stream| match stream {
         Ok(stream) => {

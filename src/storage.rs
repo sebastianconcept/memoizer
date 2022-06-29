@@ -1,26 +1,28 @@
 #![deny(unsafe_code)]
 /* No `unsafe` needed! */
 
-
 use mut_static::MutStatic;
 use rand::seq::SliceRandom;
 use std::fs::OpenOptions;
-use std::io::{ Write};
+use std::io::Write;
 use std::{
     collections::HashMap,
     fs::{self, File},
     path::Path,
 };
 
+use twox_hash::xxh3::RandomHashBuilder64;
+
+
 #[derive(Clone)]
 pub struct Storage {
-    pub store: HashMap<String, String>,
+    pub store: HashMap<String, String, RandomHashBuilder64>,
 }
 
 impl Storage {
     pub fn new() -> Self {
         Storage {
-            store: HashMap::new(),
+            store: Default::default()
         }
     }
 
@@ -41,6 +43,12 @@ impl Storage {
     }
     pub fn size(&self) -> i32 {
         self.store.len().try_into().unwrap()
+    }
+}
+
+impl Default for Storage {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -75,7 +83,6 @@ fn output(contents: String) {
     println!("{}", contents);
     file.flush().unwrap();
 }
-
 
 pub fn keys_size() -> u32 {
     KEYS.read()
@@ -143,7 +150,7 @@ fn basic_get(key: String) -> Option<String> {
 }
 
 pub fn get(key: String) -> Option<String> {
-  basic_get(key)
+    basic_get(key)
 }
 
 // pub fn echo(key: String) -> String {
