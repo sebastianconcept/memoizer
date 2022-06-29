@@ -1,12 +1,12 @@
-use serde::{Deserialize, Serialize};
+pub(crate) use serde::{Deserialize, Serialize};
 use serde_json::{self, Result, Value};
 
 use std::io::{BufRead, BufReader, Write};
-use std::os::unix::net::UnixStream;
+use std::net::TcpStream;
 
 use crate::storage::{get, reset, set, size};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct MemoizerMessage {
     s: String, // selector
     p: Value,  // payload
@@ -18,12 +18,12 @@ fn to_str(string: &str) -> &str {
     string
 }
 
-pub fn respond(message: &str, mut stream: &UnixStream) {
+pub fn respond(message: &str, mut stream: &TcpStream) {
     let paylaod = format!("{}\n\r", message);
     stream.write_all(paylaod.as_bytes());
 }
 
-pub fn route(message: MemoizerMessage, mut stream: &UnixStream) {
+pub fn route(message: MemoizerMessage, mut stream: &TcpStream) {
     match message.s.as_str() {
         "get" => {
             let key = message.p["k"].to_string();
@@ -52,12 +52,12 @@ pub fn route(message: MemoizerMessage, mut stream: &UnixStream) {
         }
         _ => {
             println!("Received and unsupported value");
-            respond("nok", stream)
+            respond(&format!("nok: {:?}", message), stream)
         }
     }
 }
 
-fn on_line_received(line: String, stream: &UnixStream) {
+fn on_line_received(line: String, stream: &TcpStream) {
     let m: Result<MemoizerMessage> = serde_json::from_str(&line);
     match m {
         Ok(m) => route(m, stream),
@@ -69,10 +69,13 @@ fn on_line_received(line: String, stream: &UnixStream) {
     }
 }
 
-pub fn on_socket_accept(stream: &UnixStream) {
+pub fn on_socket_accept(stream: &TcpStream) {
     println!("Accepting incoming connection: {:?}", stream.local_addr());
-    let receiver = BufReader::new(stream);
-    for line in receiver.lines() {
+    // let protected_stream = MutStatic::from(stream);
+    // let source: mut_static::ForceSomeRwLockReadGuard<&TcpStream> =
+    //     protected_stream.read().ok().unwrap();
+    let source = BufReader::new(stream);
+    for line in source.lines() {
         on_line_received(line.unwrap(), stream);
     }
 }
