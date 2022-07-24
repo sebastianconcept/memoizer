@@ -1,7 +1,5 @@
 extern crate clap;
 use clap::{value_parser, Arg, ArgAction, ArgMatches, Command};
-use serde::de::value;
-use std::io::Result;
 
 pub fn get_socket_address() -> String {
     let args = get_arguments();
