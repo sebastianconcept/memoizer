@@ -3,14 +3,16 @@ extern crate lazy_static;
 extern crate mut_static;
 
 use crate::listener::*;
+use crate::config::*;
 use std::net::TcpListener;
 use std::thread;
 
 mod listener;
 pub mod storage;
+pub mod config;
 
 fn main() {
-    let socket_address = "127.0.0.1:9001";
+    let socket_address = get_socket_address();
 
     // Bind to socket
     let listener = match TcpListener::bind(&socket_address) {
