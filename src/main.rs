@@ -25,8 +25,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
     loop {
         let (mut socket, _) = listener.accept().await?;
         let thread = tokio::spawn(async move {
-            let mut stream = RefCell::new(socket);
-            on_socket_accept(&stream);
+            on_socket_accept(socket).await;
+            // let mut stream = RefCell::new(socket);
+            // on_socket_accept(&stream).await;
         });
         threads.push(thread);
     }

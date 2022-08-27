@@ -54,7 +54,7 @@ pub fn route(message: MemoizerMessage, mut stream: &mut RefMut<'_, TcpStream>) {
 }
 
 // Handler that responds to the MemoizerMessage on the given line and stream.
-fn on_line_received(message: Result<MemoizerMessage>, mut stream: &mut RefMut<'_, TcpStream>) {
+fn on_line_received(message: Result<MemoizerMessage>, stream: RefMut<TcpStream>) {
     match message {
         Ok(m) => route(m, &mut stream),
         Err(err) => {
@@ -67,14 +67,23 @@ fn on_line_received(message: Result<MemoizerMessage>, mut stream: &mut RefMut<'_
 
 // Handler for a new incoming connection.
 // Will parse content as one MemoizerMessage per line.
-pub async fn on_socket_accept(stream: &RefCell<TcpStream>) -> std::io::Result<()> {
-    let mut stream1 = stream.borrow_mut();
-    let source = BufReader::new(&mut *stream1);
-    let mut lines = source.lines();
+pub async fn on_socket_accept(stream: TcpStream) -> std::io::Result<()> {
+    let mut read = String::new();
+    let s = RefCell::new(stream);
+    let mut stream1 = s.borrow_mut();
+    let mut lines = BufReader::new(&mut *stream1).lines();
     while let Some(line) = lines.next_line().await? {
-        let message: Result<MemoizerMessage> = serde_json::from_str(&line);
-        let mut stream2 = stream.borrow_mut();
-        on_line_received(message, &mut stream2);
-    }
+        read = line.clone();
+    };
+    drop(stream1);
+    let mut stream2 = s.borrow_mut();
+    let message: Result<MemoizerMessage> = serde_json::from_str(&read);
+    // on_line_received(message, stream2);
+
+        // while let Some(line) = lines.next_line().await? {
+    //     let message: Result<MemoizerMessage> = serde_json::from_str(&line);
+    //     let mut stream2 = stream.borrow_mut();
+    //     on_line_received(message, &mut stream2);
+    // };
     Ok(())
 }
