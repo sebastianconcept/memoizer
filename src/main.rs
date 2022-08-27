@@ -6,7 +6,6 @@ use tokio::net::TcpListener;
 
 use crate::config::*;
 use crate::listener::*;
-use std::cell::RefCell;
 use std::error::Error;
 
 pub mod config;
@@ -15,19 +14,15 @@ pub mod storage;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    let mut threads = vec![];
-    
-    // Bind listener to socket
     let socket_address = get_socket_address();
     let listener = TcpListener::bind(&socket_address).await?;
-    println!("Accepting incoming connection: {:?}", &socket_address);
-    
+
     loop {
-        let (mut socket, _) = listener.accept().await?;
-        let thread = tokio::spawn(async move {
-            let mut stream = RefCell::new(socket);
-            on_socket_accept(&stream);
+        let (socket, _) = listener.accept().await?;
+        let _thread = tokio::spawn(async move {
+            on_socket_accept(socket)
+                .await
+                .expect("Failed to process incoming socket connection");
         });
-        threads.push(thread);
     }
 }
