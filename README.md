@@ -12,6 +12,6 @@ Release version:
 
     ./release.sh
 
-## Running the service
+## Running the service (release build)
 
-    ./memoizer -b localhost -p 9091
+    ./target/release/memoizer -b localhost -p 9091

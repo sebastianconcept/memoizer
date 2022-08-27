@@ -1,3 +1,6 @@
+### August 26, 2022
+- Adds tokio to deal with the async nature of the service.
+
 ### July 24, 2022
 - Adds support for command line arguments to set which address to bind and port to listen on.
 - Addds CHANGES.md

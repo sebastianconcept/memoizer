@@ -2,32 +2,32 @@
 extern crate lazy_static;
 extern crate mut_static;
 
-use crate::listener::*;
-use crate::config::*;
-use std::net::TcpListener;
-use std::thread;
+use tokio::net::TcpListener;
 
+use crate::config::*;
+use crate::listener::*;
+use std::cell::RefCell;
+use std::error::Error;
+
+pub mod config;
 mod listener;
 pub mod storage;
-pub mod config;
 
-fn main() {
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn Error>> {
+    let mut threads = vec![];
+    
+    // Bind listener to socket
     let socket_address = get_socket_address();
-
-    // Bind to socket
-    let listener = match TcpListener::bind(&socket_address) {
-        Err(_) => panic!("Failed to bind socket"),
-        Ok(listener) => listener,
-    };
-
-    println!("Server started, waiting for clients on {}", socket_address);
-
-    listener.incoming().for_each(|stream| match stream {
-        Ok(stream) => {
-            thread::spawn(move || on_socket_accept(&stream));
-        }
-        Err(err) => {
-            println!("Error: {}", err);
-        }
-    });
+    let listener = TcpListener::bind(&socket_address).await?;
+    println!("Accepting incoming connection: {:?}", &socket_address);
+    
+    loop {
+        let (mut socket, _) = listener.accept().await?;
+        let thread = tokio::spawn(async move {
+            let mut stream = RefCell::new(socket);
+            on_socket_accept(&stream);
+        });
+        threads.push(thread);
+    }
 }
