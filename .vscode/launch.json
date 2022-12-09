@@ -1,0 +1,48 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug executable 'memoizer'",
+      "cargo": {
+        "args": [
+          "build",
+          "--bin=memoizer",
+          "--package=memoizer"
+        ],
+        "filter": {
+          "name": "memoizer",
+          "kind": "bin"
+        }
+      },
+      "args": [
+        "-b=127.0.0.1",
+        "-p=9090"
+      ],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in executable 'memoizer'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--bin=memoizer",
+          "--package=memoizer",
+        ],
+        "filter": {
+          "name": "memoizer",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}
