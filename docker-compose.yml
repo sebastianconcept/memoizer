@@ -1,0 +1,36 @@
+services:
+  memoizer1:
+    image: memoizer:latest
+    environment:
+        - MEMOIZER_PORT=1901
+        - MEMOIZER_HOST=0.0.0.0
+    ports:
+      - '1901:1901'
+  memoizer2:
+    image: memoizer:latest
+    environment:
+        - MEMOIZER_PORT=1901
+        - MEMOIZER_HOST=0.0.0.0
+    ports:
+      - '1902:1901'
+  memoizer3:
+    image: memoizer:latest
+    environment:
+        - MEMOIZER_PORT=1901
+        - MEMOIZER_HOST=0.0.0.0
+    ports:
+      - '1903:1901'
+  memoizer4:
+    image: memoizer:latest
+    environment:
+        - MEMOIZER_PORT=1901
+        - MEMOIZER_HOST=0.0.0.0
+    ports:
+      - '1904:1901'
+  memoizer5:
+    image: memoizer:latest
+    environment:
+        - MEMOIZE_PORT=1901
+        - MEMOIZE_HOST=0.0.0.0
+    ports:
+      - '1905:1901'
