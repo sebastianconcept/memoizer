@@ -3,12 +3,9 @@
 
 use mut_static::MutStatic;
 use rand::seq::SliceRandom;
-use std::fs::OpenOptions;
-use std::io::Write;
+
 use std::{
     collections::HashMap,
-    fs::{self, File},
-    path::Path,
 };
 
 use twox_hash::xxh3::RandomHashBuilder64;
@@ -63,25 +60,6 @@ pub static SAMPLE_VALUE: &str = "{\"hlrSgsnNumber\":null,\"sponsoredImsi\":\"525
 /*
    Storage and its API
 */
-fn reset_output() {
-    if Path::new(OUTPUT_FILE_NAME).exists() {
-        fs::remove_file(OUTPUT_FILE_NAME).unwrap();
-    }
-    File::create(OUTPUT_FILE_NAME).unwrap();
-}
-
-fn output(contents: String) {
-    let is_new = Path::new(OUTPUT_FILE_NAME).exists();
-    let mut file = OpenOptions::new()
-        .create(!is_new)
-        .write(true)
-        .append(true)
-        .open(OUTPUT_FILE_NAME)
-        .unwrap();
-    write!(file, "{}\n", contents).unwrap();
-    println!("{}", contents);
-    file.flush().unwrap();
-}
 
 pub fn keys_size() -> u32 {
     KEYS.read()
