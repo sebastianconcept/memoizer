@@ -16,13 +16,13 @@ use storage::benchmark;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    let socket_address = get_socket_address();
-    let listener = TcpListener::bind(&socket_address).await?;
     let (times, payload) = get_bench_and_payload();
     if let Some(t) = times {
         benchmark(t, payload);
-        return Ok(());
     }
+
+    let socket_address = get_socket_address();
+    let listener = TcpListener::bind(&socket_address).await?;
 
     loop {
         let (socket, _) = listener.accept().await?;
