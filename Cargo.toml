@@ -1,6 +1,6 @@
 [package]
 name = "memoizer"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -15,3 +15,4 @@ rand = "0.8.5"
 twox-hash = "1.6.3"
 clap = "3.2.14"
 tokio = { version = "1.20.1", features = ["full"] }
+benchmarking = "0.4.12"

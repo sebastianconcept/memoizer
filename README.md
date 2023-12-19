@@ -6,11 +6,11 @@ Minimalist thread-safe key-value store shared over TCP sockets.
 
 Development version:
 
-    ./build.sh
+    cargo build
 
 Release version:
 
-    ./release.sh
+    cargo build --release
 
 ## Running the service (release build)
 

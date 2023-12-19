@@ -12,17 +12,24 @@ pub mod config;
 mod listener;
 pub mod storage;
 
+use storage::benchmark;
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     let socket_address = get_socket_address();
     let listener = TcpListener::bind(&socket_address).await?;
+    let (times, payload) = get_bench_and_payload();
+    if let Some(t) = times {
+        benchmark(t, payload);
+        return Ok(());
+    }
 
     loop {
         let (socket, _) = listener.accept().await?;
         let _thread = tokio::spawn(async move {
             on_socket_accept(socket)
                 .await
-                .expect("Failed to process incoming socket connection");
+                .expect("Failed to process incoming socket connection")
         });
     }
 }
