@@ -23,7 +23,7 @@ pub fn get_bench_and_payload() -> (Option<usize>, Option<String>) {
 
 fn get_arguments<'a>() -> ArgMatches {
     Command::new("Memoizer")
-        .version("0.1.1")
+        .version("0.1.2")
         .author("Sebastian Sastre <sebastianconcept@gmail.com>")
         .about("Minimalist thread-safe key-value store shared over TCP sockets.")
         .arg(
