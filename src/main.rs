@@ -23,7 +23,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let socket_address = get_socket_address();
     let listener = TcpListener::bind(&socket_address).await?;
-
+    println!("Memoizer listening on {}", socket_address);
     loop {
         let (socket, _) = listener.accept().await?;
         let _thread = tokio::spawn(async move {
