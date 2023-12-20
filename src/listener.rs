@@ -1,5 +1,3 @@
-
-
 use std::error::Error;
 
 pub(crate) use serde::{Deserialize, Serialize};
@@ -11,7 +9,7 @@ use crate::storage::{get, reset, set, size};
 
 // A MemoizerMessage is used to receive a command (selector) and an argument (its payload)
 // so the service can perform one of actions supported by its `route` method.
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct MemoizerMessage {
     s: String, // selector
     p: Value,  // payload
@@ -19,7 +17,7 @@ pub struct MemoizerMessage {
 
 // Performs the corresponding action for the given
 // MemoizerMessage and returns the corresponding answer
-pub fn route(message: MemoizerMessage) -> String {
+pub fn route(message: &MemoizerMessage) -> String {
     match message.s.as_str() {
         "get" => {
             let key = message.p["k"].to_string();
@@ -44,18 +42,18 @@ pub fn route(message: MemoizerMessage) -> String {
             format!("{}", size)
         }
         _ => {
-            println!("Received and unsupported value");
+            println!("Received an unsupported value {:?}", message);
             format!("nok: {:?}", message)
         }
     }
 }
 
 // Handler that responds to the MemoizerMessage on the given line and stream.
-fn on_line_received(message: serde_json::Result<MemoizerMessage>) -> String {
+fn on_line_received(message: &serde_json::Result<MemoizerMessage>) -> String {
     match message {
         Ok(m) => route(m),
         Err(err) => {
-            println!("Received and unsupported value");
+            println!("Received an unsupported value {:?}", message);
             let error_message = format!("{:?}", err);
             error_message
         }
@@ -69,11 +67,12 @@ pub async fn on_socket_accept(mut stream: TcpStream) -> Result<(), Box<dyn Error
     let mut lines = BufReader::new(reader).lines();
     while let Some(line) = lines.next_line().await? {
         let message: serde_json::Result<MemoizerMessage> = serde_json::from_str(&line);
-        let response = on_line_received(message);
+        let response = on_line_received(&message);
         let paylaod = format!("{}\n\r", response);
-        writer.write_all(paylaod.as_bytes())
+        writer
+            .write_all(paylaod.as_bytes())
             .await
             .expect("Failed to write to the socket");
-    };
+    }
     Ok(())
 }
