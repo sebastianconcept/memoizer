@@ -1,5 +1,9 @@
+### April 17, 2024
+- Upgraded dependencies.
+
 ### August 27, 2022
 - The socket stream moves to `on_socket_accept` and splits in reader and writer and these are used locally from there to process the incoming message.
+
 ### August 26, 2022
 - Adds tokio to deal with the async nature of the service.
 
