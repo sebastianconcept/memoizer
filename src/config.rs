@@ -21,68 +21,60 @@ pub fn get_bench_and_payload() -> (Option<usize>, Option<String>) {
     (times, payload)
 }
 
-fn get_arguments<'a>() -> ArgMatches {
+fn get_arguments() -> ArgMatches {
     Command::new("Memoizer")
-        .version("0.1.2")
+        .version("0.1.3")
         .author("Sebastian Sastre <sebastianconcept@gmail.com>")
         .about("Minimalist thread-safe key-value store shared over TCP sockets.")
         .arg(
-            Arg::with_name("bind")
+            Arg::new("bind")
                 .value_name("IP_ADDRESS")
                 .short('b')
                 .long("bind")
-                .multiple(false)
                 .action(ArgAction::Append)
                 .value_parser(value_parser!(String))
                 .help("Defines an IP address to bind for listening incoming TCP connections.")
-                .required(true)
-                .takes_value(true),
+                .required(true),
         )
         .arg(
-            Arg::with_name("port")
+            Arg::new("port")
                 .value_name("PORT")
                 .short('p')
                 .long("port")
-                .multiple(false)
                 .action(ArgAction::Append)
                 .value_parser(value_parser!(String))
                 .help("Defines the port to use.")
-                .required(true)
-                .takes_value(true),
+                .required(true),
         )
         .arg(
-            Arg::with_name("bench")
+            Arg::new("bench")
                 .value_name("NUM_TIMES")
                 .short('e')
                 .long("bench")
-                .multiple(false)
                 .action(ArgAction::Append)
                 .value_parser(value_parser!(usize))
                 .help("Runs a benchmark a number of times with an optional custom payload")
-                .required(false)
-                .takes_value(true),
+                .required(false),
         )
         .arg(
-            Arg::with_name("payload")
+            Arg::new("payload")
                 .value_name("CUSTOM_PAYLOAD")
                 .short('d')
                 .long("payload")
-                .multiple(false)
                 .action(ArgAction::Append)
                 .value_parser(value_parser!(String))
                 .help("The custom payload to use in a benchmark")
-                .required(false)
-                .takes_value(true),
+                .required(false),
         )
         .group(
-            ArgGroup::with_name("bench_options")
-                .args(&["bench", "payload"])
+            ArgGroup::new("bench_options")
+                .args(["bench", "payload"])
                 .multiple(true)
                 .required(false), // Either times or string is required
         )
         .group(
-            ArgGroup::with_name("connection_options")
-                .args(&["bind", "port"])
+            ArgGroup::new("connection_options")
+                .args(["bind", "port"])
                 .multiple(true)
                 .required(false), // bind and port are required unless bench is selected
         )

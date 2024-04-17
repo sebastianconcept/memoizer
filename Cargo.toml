@@ -8,11 +8,11 @@ edition = "2021"
 [dependencies]
 lazy_static = "1.4.0"
 mut_static = "5.0.0"
-serde = { version = "1.0.137", features = ["derive"] }
-serde_json = "1.0.81"
-uuid = { version = "1.1.2", features = ["v4", "fast-rng", "macro-diagnostics"] }
+serde = { version = "1.0.198", features = ["derive"] }
+serde_json = "1.0.116"
+uuid = { version = "1.8.0", features = ["v4", "fast-rng", "macro-diagnostics"] }
 rand = "0.8.5"
 twox-hash = "1.6.3"
-clap = "3.2.14"
+clap = "4.5.4"
 tokio = { version = "1.37.0", features = ["full"] }
 benchmarking = "0.4.12"
