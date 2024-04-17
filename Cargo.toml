@@ -14,5 +14,5 @@ uuid = { version = "1.1.2", features = ["v4", "fast-rng", "macro-diagnostics"] }
 rand = "0.8.5"
 twox-hash = "1.6.3"
 clap = "3.2.14"
-tokio = { version = "1.20.1", features = ["full"] }
+tokio = { version = "1.37.0", features = ["full"] }
 benchmarking = "0.4.12"
