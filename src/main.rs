@@ -6,7 +6,7 @@ use tokio::net::TcpListener;
 
 use crate::config::*;
 use crate::listener::*;
-use std::error::Error;
+use anyhow::Result;
 
 pub mod config;
 mod listener;
@@ -15,7 +15,7 @@ pub mod storage;
 use storage::benchmark;
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn Error>> {
+async fn main() -> Result<()> {
     let (times, payload) = get_bench_and_payload();
     if let Some(t) = times {
         benchmark(t, payload);
@@ -26,10 +26,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
     println!("Memoizer listening on {}", socket_address);
     loop {
         let (socket, _) = listener.accept().await?;
-        let _thread = tokio::spawn(async move {
-            on_socket_accept(socket)
-                .await
-                .expect("Failed to process incoming socket connection")
-        });
+        let _thread = tokio::spawn(async move { on_socket_accept(socket).await });
     }
 }

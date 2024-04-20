@@ -1,7 +1,7 @@
-use std::error::Error;
-
+use anyhow::Result;
 pub(crate) use serde::{Deserialize, Serialize};
 use serde_json::{self, Value};
+use thiserror::Error;
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt};
 use tokio::{io::BufReader, net::TcpStream};
 
@@ -15,64 +15,65 @@ pub struct MemoizerMessage {
     p: Value,  // payload
 }
 
+#[derive(Debug, Error)]
+enum MessageProcessingError {
+    #[error("message could not be parsed")]
+    ParsingError,
+    #[error("message not supported")]
+    UnsupportedMessage,
+}
+
 // Performs the corresponding action for the given
 // MemoizerMessage and returns the corresponding answer
-pub fn route(message: &MemoizerMessage) -> String {
+pub fn route(message: &MemoizerMessage) -> Result<String> {
     match message.s.as_str() {
         "get" => {
             let key = message.p["k"].to_string();
             let value = get(key);
             match value {
-                None => "null".to_string(),
-                Some(v) => v,
+                None => Ok("null".to_string()),
+                Some(v) => Ok(v),
             }
         }
         "set" => {
             let key = message.p["k"].to_string();
             let value = message.p["v"].to_string();
             set(key, value);
-            "ok".to_string()
+            Ok("ok".into())
         }
         "reset" => {
             reset();
-            "ok".to_string()
+            Ok("ok".to_string())
         }
         "size" => {
             let size = size();
-            format!("{}", size)
+            Ok(format!("{}", size))
         }
         _ => {
             println!("Received an unsupported value {:?}", message);
-            format!("nok: {:?}", message)
+            Err(MessageProcessingError::UnsupportedMessage.into())
         }
     }
 }
 
 // Handler that responds to the MemoizerMessage on the given line and stream.
-fn on_line_received(message: &serde_json::Result<MemoizerMessage>) -> String {
+async fn on_line_received(message: &serde_json::Result<MemoizerMessage>) -> Result<String> {
     match message {
         Ok(m) => route(m),
-        Err(err) => {
-            println!("Received an unsupported value {:?}", message);
-            let error_message = format!("{:?}", err);
-            error_message
-        }
+        Err(_) => Err(MessageProcessingError::ParsingError.into()),
     }
 }
 
 // Handler for a new incoming connection.
 // Will parse content as one MemoizerMessage per line.
-pub async fn on_socket_accept(mut stream: TcpStream) -> Result<(), Box<dyn Error>> {
+pub async fn on_socket_accept(mut stream: TcpStream) -> Result<String> {
     let (reader, mut writer) = stream.split();
     let mut lines = BufReader::new(reader).lines();
     while let Some(line) = lines.next_line().await? {
-        let message: serde_json::Result<MemoizerMessage> = serde_json::from_str(&line);
-        let response = on_line_received(&message);
+        let message = serde_json::from_str::<MemoizerMessage>(&line);
+        let response = on_line_received(&message).await?;
         let paylaod = format!("{}\n\r", response);
-        writer
-            .write_all(paylaod.as_bytes())
-            .await
-            .expect("Failed to write to the socket");
+        writer.write_all(paylaod.as_bytes()).await?
     }
-    Ok(())
+    Ok("ok".to_string())
 }

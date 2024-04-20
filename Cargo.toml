@@ -16,3 +16,5 @@ twox-hash = "1.6.3"
 clap = "4.5.4"
 tokio = { version = "1.37.0", features = ["full"] }
 benchmarking = "0.4.12"
+thiserror = "1.0.58"
+anyhow = "1.0.82"
