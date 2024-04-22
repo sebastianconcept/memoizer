@@ -1,3 +1,6 @@
+### April 19, 2024
+- Adopted `thiserror` and `anyhow`.
+
 ### April 17, 2024
 - Upgraded dependencies.
 
