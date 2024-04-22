@@ -50,7 +50,7 @@ pub fn route(message: &MemoizerMessage) -> Result<String> {
             Ok(format!("{}", size))
         }
         _ => {
-            println!("Received an unsupported value {:?}", message);
+            println!("Received an unsupported message {:?}", message);
             Err(MessageProcessingError::UnsupportedMessage.into())
         }
     }
